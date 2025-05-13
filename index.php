@@ -102,56 +102,38 @@
                 <h2>Product List</h2>
             </div>
             <div class="row it_works">
-              <?php
+            <?php
+// Function to load environment variables from a .env file
+function loadEnv($path)
+{
+    if (!file_exists($path)) {
+        return false;
+    }
 
-                        // $link = mysqli_connect('172.20.1.101', 'ecomuser', 'ecompassword', 'ecomdb');
-                        // Fetch database connection details directly from environment variables
-                        $dbHost = getenv('DB_HOST');
-                        $dbUser = getenv('DB_USER');
-                        $dbPassword = getenv('DB_PASSWORD');
-                        $dbName = getenv('DB_NAME');
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
 
-                        // Attempt to connect to the database
-                        $link = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
+        list($name, $value) = explode('=', $line, 2);
+        $name = trim($name);
+        $value = trim($value);
+        putenv(sprintf('%s=%s', $name, $value));
+    }
+    return true;
+}
 
-                        if ($link) {
-                        $res = mysqli_query($link, "select * from products;");
-                        while ($row = mysqli_fetch_assoc($res)) { ?>
+// Load environment variables from .env file
+loadEnv(__DIR__ . '/.env');
 
-                <div class="col-md-3 col-sm-6 business_content">
-                    <?php echo '<img src="img/' . $row['ImageUrl'] . '" alt="">' ?>
-                    <div class="media">
-                        <div class="media-left">
+// Retrieve the database connection details from environment variables
+$dbHost = getenv('DB_HOST');
+$dbUser = getenv('DB_USER');
+$dbPassword = getenv('DB_PASSWORD');
+$dbName = getenv('DB_NAME');
 
-                        </div>
-                        <div class="media-body">
-                            <a href="#"><?php echo $row['Name'] ?></a>
-                            <p>Purchase <?php echo $row['Name'] ?> at the lowest price <span><?php echo $row['Price'] ?>$</span></p>
-                        </div>
-                    </div>
-                </div>
-
-                <?php
-                        }
-                    }
-                    else {
-                ?>
-                <div style="width: 100%">
-                <div class="error-content">
-
-                    <h1>Database connection error</h1>
-                    <p>
-                    <?php
-                          echo mysqli_connect_errno() . ":" . mysqli_connect_error();
-                    ?>
-                    </p>
-                  </div>
-                  </div>
-                  <?php
-                    }
-                  ?>
-
-
+?>
             </div>
         </section>
 
